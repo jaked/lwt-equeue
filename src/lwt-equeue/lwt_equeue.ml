@@ -1,6 +1,7 @@
 let event_system = ref None
 let group = ref None
 let old_resources = ref []
+let in_start = ref false
 
 let get_event_system () =
   match !event_system with
@@ -25,19 +26,27 @@ let select set_r set_w set_e timeout =
           match timeout with
             | None -> rs
             | Some timeout -> (Unixqueue.Wait (es#new_wait_id ()), timeout)::rs in
-        List.iter (fun (r, _) -> es#remove_resource g r) !old_resources;
         List.iter (fun r -> es#add_resource g r) rs;
         old_resources := rs
   end;
   (lazy 0., [], [], [])
 
-let iteration () =
+let add_resources () =
   Lwt.wakeup_paused ();
-  ignore (Lwt_main.apply_filters select [] [] [] None);
-  let es = get_event_system () in
-  if not es#is_running then es#run ()
+  ignore (Lwt_main.apply_filters select [] [] [] None)
 
-let handler es _ e =
+let remove_resources () =
+  let es = get_event_system () in
+  let g = get_group () in
+  List.iter (fun (r, _) -> es#remove_resource g r) !old_resources;
+  old_resources := []
+
+let iteration () =
+  add_resources ();
+  let es = get_event_system () in
+  es#run ()
+
+let handler _ _ e =
   let set_r, set_w, set_e =
     match e with
       | Unixqueue.Input_arrived (_, fd) -> [ fd ], [], []
@@ -49,7 +58,8 @@ let handler es _ e =
     (Lwt_main.apply_filters
        (fun _ _ _ _ -> Lazy.lazy_from_fun Unix.gettimeofday, set_r, set_w, set_e)
        [] [] [] None);
-  iteration ()
+  remove_resources ();
+  if !in_start then add_resources ()
 
 let _ = Lwt_main.main_loop_iteration := iteration
 
@@ -69,5 +79,6 @@ let unset_event_system () =
   old_resources := []
 
 let start t =
+  in_start := true;
   Lwt.ignore_result (t ());
-  iteration ()
+  add_resources ()
