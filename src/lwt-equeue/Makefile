@@ -6,6 +6,8 @@ BFILES=$(addprefix _build/,$(FILES))
 
 all: myocamlbuild.ml
 	ocamlbuild lwt-equeue.cma lwt-equeue.cmxa
+	ocamlfind remove -destdir ../../stage lwt-equeue
+	ocamlfind install -destdir ../../stage lwt-equeue META $(BFILES)
 
 doc:
 	ocamlbuild -no-links doc.docdir/index.html
