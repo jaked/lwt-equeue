@@ -1,4 +1,4 @@
-PKGLIST=lwt-equeue
+PKGLIST=lwt-equeue lwt-stuff
 
 all:
 	mkdir -p stage
