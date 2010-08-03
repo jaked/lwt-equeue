@@ -1,0 +1,6 @@
+name="Cohttpserver-netplex"
+description="Cohttpserver as a Netplex service"
+requires="netplex,cohttpserver,lwt-equeue"
+version="0.3"
+archive(byte) = "cohttpserver-netplex.cma"
+archive(native) = "cohttpserver-netplex.cmxa"

@@ -1,4 +1,4 @@
-PKGLIST=lwt-equeue lwt-stuff
+PKGLIST=lwt-equeue lwt-stuff cohttpserver-netplex
 
 all:
 	mkdir -p stage
