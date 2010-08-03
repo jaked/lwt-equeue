@@ -22,20 +22,15 @@ let factory
       object (self)
         inherit Netplex_kit.processor_base (hooks custom_cfg) as super
 
-        method post_add_hook sockserv =
-          super # post_add_hook sockserv
-
-        method post_rm_hook sockserv =
-	  super # post_add_hook sockserv
+        method post_start_hook container =
+          let esys = container # event_system in
+          Lwt_equeue.set_event_system esys
 
         method shutdown () =
           (* XXX gracefully shutdown active connections *)
           super # shutdown ()
 
         method process ~when_done container fd proto =
-          let esys = container # event_system in
-          Lwt_equeue.set_event_system esys;
-
           let callback = Http_daemon.daemon_callback spec in
           let clisockaddr = Unix.getpeername fd in
           let srvsockaddr = Unix.getsockname fd in
