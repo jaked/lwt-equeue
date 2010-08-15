@@ -28,7 +28,8 @@ let factory
 
         method shutdown () =
           (* XXX gracefully shutdown active connections *)
-          super # shutdown ()
+          super # shutdown ();
+          Lwt_equeue.unset_event_system ()
 
         method process ~when_done container fd proto =
           let callback = Http_daemon.daemon_callback spec in
