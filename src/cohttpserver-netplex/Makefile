@@ -5,6 +5,8 @@ cohttpserver_netplex.cmi cohttpserver_netplex.mli
 BFILES=$(addprefix _build/,$(FILES))
 
 all: myocamlbuild.ml
+	OCAMLFIND_IGNORE_DUPS_IN=$(LIBDIR)/site-lib \
+	OCAMLPATH=`pwd`/../../stage \
 	ocamlbuild cohttpserver-netplex.cma cohttpserver-netplex.cmxa
 
 doc:
