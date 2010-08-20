@@ -1,0 +1,5 @@
+name="Lwt-fiber"
+requires="lwt,delimcc"
+version="0.3"
+archive(byte) = "lwt-fiber.cma"
+archive(native) = "lwt-fiber.cmxa"

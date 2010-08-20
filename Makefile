@@ -1,4 +1,4 @@
-PKGLIST=lwt-equeue lwt-stuff cohttpserver-netplex
+-include ../Makefile.conf
 
 all:
 	mkdir -p stage

@@ -1,0 +1,3 @@
+<*.ml*> : syntax_camlp4o,pkg_lwt.syntax,pkg_lwt-fiber,pkg_lwt.unix
+<*.byte> or <*.native> : pkg_lwt-fiber,pkg_lwt.unix
+

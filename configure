@@ -1,0 +1,149 @@
+#! /bin/sh
+
+# adapted from ocamlnet's configure
+
+#######################################################################
+# Helpers:
+
+# Split $PATH into words:
+oldifs="$IFS"
+IFS="   :"
+spacepath=`echo $PATH`
+IFS="$oldifs"
+
+get_path () {
+    for d in $spacepath; do
+        if test -x "$d/$1"; then
+            echo "$d/$1"
+            return
+        fi
+    done
+}
+
+ocamlc=`get_path ocamlc`
+
+version="0.3"
+exec_suffix=""
+
+check_library () {
+    # $1: the name of the library (findlib)
+	ocamlfind query "$1" >/dev/null 2>/dev/null
+	return
+	return 1   # not found
+}
+
+echo "Welcome to lwt-equeue version $version" >&2
+
+######################################################################
+# Check ocamlfind
+
+printf "%s" "Checking for findlib... "
+if check_library stdlib; then
+    echo "found"
+else
+    echo "not found"
+    echo "Download findlib from http://projects.camlcity.org/projects/findlib.html"
+    exit 1
+fi
+
+######################################################################
+# Check that Lwt is available:
+
+printf "%s" "Checking for Lwt... "
+if check_library lwt; then
+    echo "found"
+else
+    echo "not found"
+    echo "Download Lwt from http://ocsigen.org/lwt/"
+    exit 1
+fi
+
+######################################################################
+# Check that equeue is available:
+
+printf "%s" "Checking for equeue... "
+if check_library equeue; then
+    echo "found"
+else
+    echo "not found"
+    echo "Download equeue from http://projects.camlcity.org/projects/ocamlnet.html"
+    exit 1
+fi
+
+######################################################################
+# Check that cohttpserver is available:
+
+printf "%s" "Checking for cohttpserver... "
+has_cohttpserver=0
+if check_library cohttpserver; then
+    echo "found"
+    has_cohttpserver=1
+else
+    echo "not found, continuing"
+    echo "Download cohttpserver from http://github.com/jaked/ocaml-cohttpserver/"
+fi
+
+######################################################################
+# Check that netplex is available:
+
+printf "%s" "Checking for netplex... "
+has_netplex=0
+if check_library netplex; then
+    echo "found"
+    has_netplex=1
+else
+    has_cohttpserver=0
+    echo "not found"
+    echo "Download netplex from http://projects.camlcity.org/projects/ocamlnet.html"
+fi
+
+######################################################################
+# Check that delimcc is available:
+
+printf "%s" "Checking for delimcc... "
+has_delimcc=0
+if check_library delimcc; then
+    echo "found"
+    has_delimcc=1
+else
+    echo "not found, continuing"
+    echo "Download delimcc from http://okmij.org/ftp/continuations/"
+fi
+
+######################################################################
+# Summary
+
+pkglist="lwt-equeue lwt-stuff"
+
+if [ $has_cohttpserver -gt 0 ]; then
+    pkglist="$pkglist cohttpserver-netplex"
+fi
+if [ $has_delimcc -gt 0 ]; then
+    pkglist="$pkglist lwt-fiber"
+fi
+
+######################################################################
+# Write Makefile.conf
+
+echo "Writing Makefile.conf"
+cat <<_EOF_ >Makefile.conf
+# Makefike.conf written by configure
+# The lwt-equeue version
+VERSION = $version
+
+# The packages to build in the right order:
+PKGLIST = $pkglist
+
+HAS_COHTTPSERVER = $has_cohttpserver
+HAS_DELIMCC = $has_delimcc
+_EOF_
+
+######################################################################
+# Finish
+
+echo
+echo "You can now compile lwt-equeue by invoking"
+echo "   make all"
+echo "Finally, a"
+echo "   make install"
+echo "will install the package(s)."
