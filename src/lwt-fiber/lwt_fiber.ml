@@ -27,14 +27,13 @@ let await t =
   match Lwt.poll t with
     | Some v -> v
     | None ->
-        Delimcc.take_subcont p begin fun sk () ->
+        Delimcc.shift0 p begin fun k ->
           let ready _ =
             active_prompt := Some p;
-            Delimcc.push_delim_subcont sk begin fun () ->
-              match Lwt.poll t with
-                | Some v -> v
-                | None -> assert false
-            end;
+            k ();
             Lwt.return () in
           ignore (Lwt.try_bind (fun () -> t) ready ready)
-        end
+        end;
+        match Lwt.poll t with
+          | Some v -> v
+          | None -> assert false
