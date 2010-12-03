@@ -18,10 +18,6 @@ let get_group () =
 
 (* fd sets from Lwt are sorted in decreasing order *)
 let add_remove_resources add es g con old_set set =
-  let print_fd_list s set =
-    Printf.eprintf "%s: [ %s ]\n" s (String.concat ", " (List.map (fun fd -> string_of_int (Obj.magic fd)) set)) in
-  print_fd_list "old_set" old_set;
-  print_fd_list "set" set;
   let rec loop old_set set =
     match old_set, set with
       | [], [] -> ()
