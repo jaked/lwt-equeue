@@ -43,11 +43,12 @@ let select add set_r set_w set_e timeout =
     | Some t -> es#remove_resource g t
   end;
   begin match timeout with
-    | None -> old_timeout := None
-    | Some ts ->
+    | Some ts when add ->
         let r = Unixqueue.Wait (es#new_wait_id ()) in
-        if add then es#add_resource g (r, ts);
+        es#add_resource g (r, ts);
         old_timeout := Some r
+    | _ ->
+        old_timeout := None
   end;
   (lazy 0., [], [], [])
 
