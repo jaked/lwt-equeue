@@ -22,11 +22,11 @@ let await t =
     match !active_prompt with
       | None -> failwith "await called outside start"
       | Some p -> p in
-  active_prompt := None;
 
   match Lwt.poll t with
     | Some v -> v
     | None ->
+        active_prompt := None;
         Delimcc.shift0 p begin fun k ->
           let ready _ =
             active_prompt := Some p;
